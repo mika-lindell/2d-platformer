@@ -2,6 +2,8 @@
   var game, gfx;
 
   gfx = {
+    tileW: 24,
+    tileH: 24,
     init: function() {
       var canvas;
       canvas = document.querySelector("#game");
@@ -23,14 +25,19 @@
         return onload();
       };
     },
-    drawSprite: function(col, row, x, y, srcSize, outputSize) {
-      if (srcSize == null) {
-        srcSize = 24;
+    drawSprite: function(col, row, x, y, w, h, scale) {
+      if (w == null) {
+        w = 1;
       }
-      if (outputSize == null) {
-        outputSize = 24;
+      if (h == null) {
+        h = 1;
       }
-      return this.ctx.drawImage(this.sprites, col * srcSize, row * srcSize, srcSize, srcSize, x, y, outputSize, outputSize);
+      if (scale == null) {
+        scale = 1;
+      }
+      w *= this.tileW;
+      h *= this.tileH;
+      return this.ctx.drawImage(this.sprites, col * w, row * h, w, h, x, y, w * scale, h * scale);
     }
   };
 
@@ -41,24 +48,33 @@
         return;
       }
       gfx.load(function() {
-        var col, rand, row, x, y, _i, _results;
+        var drawANinja, makeANinja, n, ninjas, rand, _i, _len;
         rand = function(max) {
           return Math.floor(Math.random() * max);
         };
-        _results = [];
-        for (y = _i = 0; _i <= 19; y = ++_i) {
-          _results.push((function() {
-            var _j, _results1;
-            _results1 = [];
-            for (x = _j = 0; _j <= 23; x = ++_j) {
-              col = rand(7);
-              row = rand(2);
-              _results1.push(gfx.drawSprite(col, row, x * 24, y * 24));
-            }
-            return _results1;
-          })());
+        makeANinja = function() {
+          return {
+            x: rand(gfx.w),
+            y: rand(gfx.h)
+          };
+        };
+        drawANinja = function(n) {
+          return gfx.drawSprite(0, 1, n.x, n.y);
+        };
+        ninjas = (function() {
+          var _i, _results;
+          _results = [];
+          for (_i = 0; _i < 20; _i++) {
+            _results.push(makeANinja());
+          }
+          return _results;
+        })();
+        for (_i = 0, _len = ninjas.length; _i < _len; _i++) {
+          n = ninjas[_i];
+          drawANinja(n);
         }
-        return _results;
+        gfx.drawSprite(0, 0, 50, 50);
+        return gfx.drawSprite(0, 0, 74, 50, 1, 1, 2);
       });
       gfx.clear();
       return console.log("Ready.");

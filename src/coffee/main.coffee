@@ -5,6 +5,10 @@
 
 gfx =
 
+	# Tile width and height
+	tileW: 24
+	tileH: 24 
+
 	# Initialize canvas
 	init: ->
 		# ? is used got "soak up" nulls -> code keeps running if var was a null
@@ -31,10 +35,12 @@ gfx =
 		@sprites.onload = -> onload()
 
 	# Draw a sprite
-	drawSprite: (col, row, x, y, srcSize = 24, outputSize = 24) ->
+	drawSprite: (col, row, x, y, w = 1, h = 1, scale = 1) ->
+		w *= @tileW
+		h *= @tileH
 		@ctx.drawImage @sprites,
-			col * srcSize, row * srcSize, srcSize, srcSize, # Location in sprite sheet
-			x, y, outputSize, outputSize # Size the image is drawn to
+			col * w, row * h, w, h, # Grid location in sprite sheet
+			x, y, w * scale, h * scale # Size of the sprite on canvas
 
 
 #
@@ -50,13 +56,22 @@ game =
 			gfx.load ->
 			#	gfx. drawSprite 0,0,100,50
 
-				# random sprite
+				# random
 				rand = (max) -> Math.floor Math.random() * max
-				for y in [0..19]
-					for x in [0..23]
-						col = rand 7
-						row = rand 2
-						gfx.drawSprite col, row, x * 24, y * 24
+
+				# Make sum Ninjaz
+				makeANinja = () ->
+					x: rand(gfx.w)
+					y: rand(gfx.h)
+
+				drawANinja = (n) -> gfx.drawSprite 0, 1, n.x, n.y
+
+				ninjas = (makeANinja() for [0...20])
+
+				drawANinja n for n in ninjas
+
+				gfx.drawSprite 0, 0, 50, 50
+				gfx.drawSprite 0, 0, 74, 50, 1, 1, 2
 
 			# Ready to play
 			gfx.clear()
