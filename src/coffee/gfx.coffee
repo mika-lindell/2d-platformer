@@ -1,4 +1,3 @@
-
 #
 # GFX.COFFEE
 #
@@ -41,41 +40,3 @@ gfx =
 		@ctx.drawImage @sprites,
 			col * w, row * h, w, h, # Grid location in sprite sheet
 			x, y, w * scale, h * scale # Size of the sprite on canvas
-
-
-#
-# GAME.COFFEE
-#
-
-game =
-		init: ->
-			if not gfx.init()
-				alert "Could not set up game canvas"
-				return # Abort loading
-			#Load sprites
-			gfx.load ->
-			#	gfx. drawSprite 0,0,100,50
-
-				# random
-				rand = (max) -> Math.floor Math.random() * max
-
-				# Make sum Ninjaz
-				makeANinja = () ->
-					x: rand(gfx.w)
-					y: rand(gfx.h)
-
-				drawANinja = (n) -> gfx.drawSprite 0, 1, n.x, n.y
-
-				ninjas = (makeANinja() for [0...20])
-
-				drawANinja n for n in ninjas
-
-				gfx.drawSprite 0, 0, 50, 50
-				gfx.drawSprite 0, 0, 74, 50, 1, 1, 2
-
-			# Ready to play
-			gfx.clear()
-			console.log "Ready."
-
-# Run the game
-game.init()
