@@ -81,13 +81,70 @@ document.addEventListener("keydown", function(e) {
 document.addEventListener("keyup", function(e) {
   return keys.trigger(e.keyCode, false, e);
 }, false);
-var player;
+var Entity;
 
-player = {
-  x: gfx.tileW * 3,
-  y: gfx.tileH * 5,
-  speed: 4,
-  update: function() {
+Entity = (function() {
+  Entity.prototype.speed = 4;
+
+  Entity.prototype.dir = "LEFT";
+
+  function Entity(level, x, y) {
+    this.level = level;
+    this.x = x;
+    this.y = y;
+    /*
+    			(@x, @y) -> 
+    
+    			is the same as:
+    
+    			(x, y) ->
+    				@x = x
+    				@y = y
+    */
+
+  }
+
+  Entity.prototype.update = function() {};
+
+  Entity.prototype.render = function(gfx) {
+    return gfx.ctx.fillText("?", this.x, this.y);
+  };
+
+  return Entity;
+
+})();
+var Ninja, _ref,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+Ninja = (function(_super) {
+  __extends(Ninja, _super);
+
+  function Ninja() {
+    _ref = Ninja.__super__.constructor.apply(this, arguments);
+    return _ref;
+  }
+
+  Ninja.prototype.render = function(gfx) {
+    return gfx.drawSprite(0, 1, this.x, this.y);
+  };
+
+  return Ninja;
+
+})(Entity);
+var Player,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+Player = (function(_super) {
+  __extends(Player, _super);
+
+  function Player(level, x, y) {
+    Player.__super__.constructor.call(this, level, x, y);
+    this.dir = "RIGHT";
+  }
+
+  Player.prototype.update = function() {
     if (keys.left) {
       this.x -= this.speed;
     }
@@ -100,101 +157,277 @@ player = {
     if (keys.up) {
       return this.y -= this.speed;
     }
-  },
-  render: function(gfx) {
-    return gfx.drawSprite(0, 0, this.x, this.y);
-  }
-};
-var game;
+  };
 
-game = {
+  Player.prototype.render = function(gfx) {
+    return gfx.drawSprite(0, 0, this.x, this.y);
+  };
+
+  return Player;
+
+})(Entity);
+var Block;
+
+Block = (function() {
+  Block.prototype.solid = false;
+
+  function Block() {}
+
+  Block.prototype.update = function() {};
+
+  Block.prototype.render = function(gfx, x, y) {};
+
+  return Block;
+
+})();
+var Treasure,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+Treasure = (function(_super) {
+  __extends(Treasure, _super);
+
+  function Treasure() {
+    this.yOff = Math.random() * Math.PI;
+  }
+
+  Treasure.prototype.update = function() {
+    return this.yOff += Math.PI / 24;
+  };
+
+  Treasure.prototype.render = function(gfx, x, y) {
+    var ySine;
+    ySine = Math.floor(Math.sin(this.yOff) * 4);
+    return gfx.drawSprite(5, 1, x, y + ySine);
+  };
+
+  return Treasure;
+
+})(Block);
+var Dirt, _ref,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+Dirt = (function(_super) {
+  __extends(Dirt, _super);
+
+  function Dirt() {
+    _ref = Dirt.__super__.constructor.apply(this, arguments);
+    return _ref;
+  }
+
+  Dirt.prototype.solid = true;
+
+  Dirt.prototype.render = function(gfx, x, y) {
+    return gfx.drawSprite(4, 1, x, y);
+  };
+
+  return Dirt;
+
+})(Block);
+var Rock, _ref,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+Rock = (function(_super) {
+  __extends(Rock, _super);
+
+  function Rock() {
+    _ref = Rock.__super__.constructor.apply(this, arguments);
+    return _ref;
+  }
+
+  Rock.prototype.solid = true;
+
+  Rock.prototype.render = function(gfx, x, y) {
+    return gfx.drawSprite(4, 0, x, y);
+  };
+
+  return Rock;
+
+})(Block);
+var levels;
+
+levels = [
+  {
+    name: "DIG and BUILD",
+    data: ".P................X.....\n@-@@.........@@@@@@@-@..\n.#..@@@.............#...\n.#.....@@.@@.....X..#...\n@OO#.........#@@...O#..^\n...#.........#......#.^O\n...#..@@-@@@@#..-@@@@@OO\n...#....#....#..#.......\n...#....#....#..#.......\n...#....#....#..#.......\n@-@@OOOOO.#.@@@@@#@@-@@@\n.#.X......#......#..#...\n.#...*....#......#..#...\n####..@@#@@..-@@@@@@@..*\n####....#....#.........#\n####....#....#.........#\nOOOOOOOOOOOOOOOOOOOOOOOO"
+  }
+];
+var Level;
+
+Level = (function() {
+  Level.prototype.w = 0;
+
+  Level.prototype.h = 0;
+
+  Level.prototype.treasures = 0;
+
+  Level.prototype.ninjas = [];
+
+  function Level(level, game) {
+    this.game = game;
+    this.load(level);
+  }
+
+  Level.prototype.load = function(level) {
+    var asciiMap, col, row, x, y;
+    this.ninjas = [];
+    this.treasures = 0;
+    asciiMap = (function() {
+      var _i, _len, _ref, _results;
+      _ref = level.data.split("\n");
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        row = _ref[_i];
+        _results.push(row.split(""));
+      }
+      return _results;
+    })();
+    this.map = (function() {
+      var _i, _len, _results;
+      _results = [];
+      for (y = _i = 0, _len = asciiMap.length; _i < _len; y = ++_i) {
+        row = asciiMap[y];
+        _results.push((function() {
+          var _j, _len1, _results1;
+          _results1 = [];
+          for (x = _j = 0, _len1 = row.length; _j < _len1; x = ++_j) {
+            col = row[x];
+            switch (col) {
+              case "P":
+                this.addPlayer(x, y);
+                _results1.push(new Block());
+                break;
+              case "X":
+                this.addNinja(x, y);
+                _results1.push(new Block());
+                break;
+              case "*":
+                this.treasures++;
+                _results1.push(new Treasure());
+                break;
+              case "@":
+                _results1.push(new Dirt());
+                break;
+              case "O":
+                _results1.push(new Rock());
+                break;
+              default:
+                _results1.push(new Block());
+            }
+          }
+          return _results1;
+        }).call(this));
+      }
+      return _results;
+    }).call(this);
+    this.h = this.map.length;
+    return this.w = this.map[0].length;
+  };
+
+  Level.prototype.addPlayer = function(x, y) {
+    return this.game.setPlayer(x * gfx.tileW, y * gfx.tileH, this);
+  };
+
+  Level.prototype.addNinja = function(x, y) {
+    var ninja, xPos, yPos;
+    xPos = x * gfx.tileW;
+    yPos = y * gfx.tileH;
+    ninja = new Ninja(this, xPos, yPos);
+    return this.ninjas.push(ninja);
+  };
+
+  Level.prototype.update = function() {
+    var block, ninjas, row, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _results;
+    _ref = this.map;
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      row = _ref[_i];
+      for (_j = 0, _len1 = row.length; _j < _len1; _j++) {
+        block = row[_j];
+        block.update();
+      }
+    }
+    _ref1 = this.ninjas;
+    _results = [];
+    for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+      ninjas = _ref1[_k];
+      _results.push(ninjas.update());
+    }
+    return _results;
+  };
+
+  Level.prototype.render = function(gfx) {
+    var block, ninjas, row, x, y, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _results;
+    _ref = this.map;
+    for (y = _i = 0, _len = _ref.length; _i < _len; y = ++_i) {
+      row = _ref[y];
+      for (x = _j = 0, _len1 = row.length; _j < _len1; x = ++_j) {
+        block = row[x];
+        block.render(gfx, x * gfx.tileW, y * gfx.tileH);
+      }
+    }
+    _ref1 = this.ninjas;
+    _results = [];
+    for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+      ninjas = _ref1[_k];
+      _results.push(ninjas.render(gfx));
+    }
+    return _results;
+  };
+
+  return Level;
+
+})();
+this.game = {
+  running: false,
   init: function() {
     if (!gfx.init()) {
-      alert("Could not set up game canvas");
+      alert("Sorry your browser doesn't support this game :(");
       return;
     }
-    gfx.load(function() {
-      var drawANinja, level, level1, makeANinja, makeLevel, n, ninjas, rand, _i, _len;
-      rand = function(max) {
-        return Math.floor(Math.random() * max);
-      };
-      makeANinja = function() {
-        return {
-          x: rand(gfx.w),
-          y: rand(gfx.h)
-        };
-      };
-      drawANinja = function(n) {
-        return gfx.drawSprite(0, 1, n.x, n.y);
-      };
-      ninjas = (function() {
-        var _i, _results;
-        _results = [];
-        for (_i = 0; _i < 20; _i++) {
-          _results.push(makeANinja());
-        }
-        return _results;
-      })();
-      for (_i = 0, _len = ninjas.length; _i < _len; _i++) {
-        n = ninjas[_i];
-        drawANinja(n);
-      }
-      level1 = ".............\n...........*.\n....@#@@@@#@.\n.....#....#..\n.....#....#..\n..*..#...@@@.\n..@@@@@...#..\n...#......#..\n...#......#..\n...#......#..\n.OOOOOOOOOOOO";
-      makeLevel = function(ascii) {
-        var asciiMap, col, row, tiles, _j, _len1, _results;
-        tiles = {
-          "@": [4, 1],
-          "O": [4, 0],
-          "*": [5, 1],
-          "#": [5, 0]
-        };
-        asciiMap = (function() {
-          var _j, _len1, _ref, _results;
-          _ref = ascii.split("\n");
-          _results = [];
-          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-            row = _ref[_j];
-            _results.push(row.split(""));
-          }
-          return _results;
-        })();
-        _results = [];
-        for (_j = 0, _len1 = asciiMap.length; _j < _len1; _j++) {
-          row = asciiMap[_j];
-          _results.push((function() {
-            var _k, _len2, _results1;
-            _results1 = [];
-            for (_k = 0, _len2 = row.length; _k < _len2; _k++) {
-              col = row[_k];
-              _results1.push(tiles[col]);
-            }
-            return _results1;
-          })());
-        }
-        return _results;
-      };
-      level = makeLevel(level1);
-      return setInterval(function() {
-        var row, tile, x, xPos, y, yPos, _j, _k, _len1, _len2;
-        player.update();
-        gfx.clear();
-        for (y = _j = 0, _len1 = level.length; _j < _len1; y = ++_j) {
-          row = level[y];
-          for (x = _k = 0, _len2 = row.length; _k < _len2; x = ++_k) {
-            tile = row[x];
-            if (!tile) {
-              continue;
-            }
-            xPos = x * gfx.tileW;
-            yPos = y * gfx.tileH;
-            gfx.drawSprite(tile[0], tile[1], xPos, yPos);
-          }
-        }
-        return player.render(gfx);
-      }, 33);
+    return gfx.load(function() {
+      game.reset();
+      return console.log("Ready.");
     });
-    return console.log("Ready.");
+  },
+  stop: function() {
+    return this.running = false;
+  },
+  start: function() {
+    return this.running = true;
+  },
+  reset: function() {
+    keys.reset();
+    this.player = new Player;
+    this.level = new Level(levels[0], this);
+    if (!this.running) {
+      this.start();
+      return this.tick();
+    }
+  },
+  setPlayer: function(x, y, level) {
+    this.player.level = level;
+    this.player.x = x;
+    return this.player.y = y;
+  },
+  tick: function() {
+    if (!this.running) {
+      return;
+    }
+    gfx.clear();
+    this.update();
+    this.render();
+    return requestAnimationFrame(function() {
+      return game.tick();
+    });
+  },
+  update: function() {
+    this.level.update();
+    return this.player.update();
+  },
+  render: function() {
+    this.level.render(gfx);
+    return this.player.render(gfx);
   }
 };
-
-game.init();
