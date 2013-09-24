@@ -1,13 +1,11 @@
 this.game = {
-  running: false,
   init: function() {
     if (!gfx.init()) {
-      alert("Sorry your browser doesn't support this game :(");
+      alert("Sorry, no canvas");
       return;
     }
     return gfx.load(function() {
-      game.reset();
-      return console.log("Ready.");
+      return game.reset();
     });
   },
   stop: function() {
@@ -17,9 +15,9 @@ this.game = {
     return this.running = true;
   },
   reset: function() {
-    keys.reset();
     this.player = new Player;
     this.level = new Level(levels[0], this);
+    keys.reset();
     if (!this.running) {
       this.start();
       return this.tick();
@@ -37,9 +35,9 @@ this.game = {
     gfx.clear();
     this.update();
     this.render();
-    return requestAnimationFrame(function() {
+    return setTimeout((function() {
       return game.tick();
-    });
+    }), 33);
   },
   update: function() {
     this.level.update();

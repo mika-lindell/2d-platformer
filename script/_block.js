@@ -1,7 +1,11 @@
 var Block;
 
 Block = (function() {
+  Block.prototype.touchable = false;
+
   Block.prototype.solid = false;
+
+  Block.prototype.climbable = false;
 
   function Block() {}
 

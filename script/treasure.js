@@ -5,12 +5,25 @@ var Treasure,
 Treasure = (function(_super) {
   __extends(Treasure, _super);
 
+  Treasure.prototype.touchable = true;
+
+  Treasure.prototype.collected = false;
+
   function Treasure() {
     this.yOff = Math.random() * Math.PI;
   }
 
-  Treasure.prototype.update = function() {
-    return this.yOff += Math.PI / 24;
+  Treasure.prototype.touch = function(entity) {
+    if (entity.constructor === Player) {
+      return this.collected = true;
+    }
+  };
+
+  Treasure.prototype.update = function(x, y, level) {
+    this.yOff += Math.PI / 24;
+    if (this.collected) {
+      return level.removeBlock(x, y, this);
+    }
   };
 
   Treasure.prototype.render = function(gfx, x, y) {

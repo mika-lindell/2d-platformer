@@ -1,14 +1,30 @@
 class Player extends Entity
+  constructor: ->
+    super
+    @dir = "RIGHT"  
+  update: ->
+    xo = yo = 0
 
-	constructor: (level, x, y) ->
-		super level, x, y
-		@dir = "RIGHT"
+    if not @falling
+      if keys.left
+        xo -= @speed
+        @dir = "LEFT"
 
-	update: -> 
-		@x -= @speed if keys.left
-		@x += @speed if keys.right
-		@y += @speed if keys.down
-		@y -= @speed if keys.up
+      if keys.right
+        xo += @speed
+        @dir = "RIGHT"
 
-	render: (gfx) -> 
-		gfx.drawSprite 0, 0, @x, @y
+    yo += @speed if keys.down and @onLadder
+    yo -= @speed if keys.up and @onLadder and not @onTopOfLadder
+
+    @dig() if keys.space
+
+    @move xo, yo
+  render: (gfx) ->
+    gfx.drawSprite 0, 0, @x, @y
+
+  dig: ->
+    return if utils.now() - @lastDig < (0.5 * 1000) # 6 seconds
+
+    @level.digAt @dir, @x, @y
+    @lastDig = utils.now()

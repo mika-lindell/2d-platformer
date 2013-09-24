@@ -5,28 +5,46 @@ var Player,
 Player = (function(_super) {
   __extends(Player, _super);
 
-  function Player(level, x, y) {
-    Player.__super__.constructor.call(this, level, x, y);
+  function Player() {
+    Player.__super__.constructor.apply(this, arguments);
     this.dir = "RIGHT";
   }
 
   Player.prototype.update = function() {
-    if (keys.left) {
-      this.x -= this.speed;
+    var xo, yo;
+    xo = yo = 0;
+    if (!this.falling) {
+      if (keys.left) {
+        xo -= this.speed;
+        this.dir = "LEFT";
+      }
+      if (keys.right) {
+        xo += this.speed;
+        this.dir = "RIGHT";
+      }
     }
-    if (keys.right) {
-      this.x += this.speed;
+    if (keys.down && this.onLadder) {
+      yo += this.speed;
     }
-    if (keys.down) {
-      this.y += this.speed;
+    if (keys.up && this.onLadder && !this.onTopOfLadder) {
+      yo -= this.speed;
     }
-    if (keys.up) {
-      return this.y -= this.speed;
+    if (keys.space) {
+      this.dig();
     }
+    return this.move(xo, yo);
   };
 
   Player.prototype.render = function(gfx) {
     return gfx.drawSprite(0, 0, this.x, this.y);
+  };
+
+  Player.prototype.dig = function() {
+    if (utils.now() - this.lastDig < (0.5 * 1000)) {
+      return;
+    }
+    this.level.digAt(this.dir, this.x, this.y);
+    return this.lastDig = utils.now();
   };
 
   return Player;

@@ -13,7 +13,22 @@ Dirt = (function(_super) {
   Dirt.prototype.solid = true;
 
   Dirt.prototype.render = function(gfx, x, y) {
-    return gfx.drawSprite(4, 1, x, y);
+    var oldAlpha;
+    oldAlpha = gfx.ctx.globalAlpha;
+    gfx.ctx.globalAlpha = 1 - this.digTime / 80;
+    gfx.drawSprite(4, 1, x, y);
+    return gfx.ctx.globalAlpha = oldAlpha;
+  };
+
+  Dirt.prototype.digIt = function() {
+    this.digTime = 80;
+    return this.solid = false;
+  };
+
+  Dirt.prototype.update = function() {
+    if (--this.digTime === 50) {
+      return this.solid = true;
+    }
   };
 
   return Dirt;
