@@ -36,7 +36,23 @@ Player = (function(_super) {
   };
 
   Player.prototype.render = function(gfx) {
-    return gfx.drawSprite(0, 0, this.x, this.y);
+    var fx, fy, isLeft;
+    fy = fx = 0;
+    isLeft = this.dir === "LEFT";
+    if (this.falling) {
+      if (isLeft) {
+        fx = 1;
+      }
+      fy = 2;
+    } else {
+      if (isLeft) {
+        fx = 2;
+      }
+      if (keys.left || keys.right) {
+        fx += utils.counter(2);
+      }
+    }
+    return gfx.drawSprite(fx, fy, this.x, this.y);
   };
 
   Player.prototype.dig = function() {
@@ -44,7 +60,8 @@ Player = (function(_super) {
       return;
     }
     this.level.digAt(this.dir, this.x, this.y);
-    return this.lastDig = utils.now();
+    this.lastDig = utils.now();
+    return sound.play("dig");
   };
 
   return Player;

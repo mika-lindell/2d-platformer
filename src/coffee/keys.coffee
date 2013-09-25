@@ -19,10 +19,9 @@ keys =
 				@space = isDown
 		event.preventDefault()
 
-document.addEventListener "keydown", (e) ->
+$(document).keydown (e) -> 
 	keys.trigger e.keyCode, true, e
-, false
 
-document.addEventListener "keyup", (e) ->
+
+$(document).keyup (e) ->
 	keys.trigger e.keyCode, false, e
-, false

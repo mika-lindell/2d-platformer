@@ -82,6 +82,7 @@ class Level
     p.x <= b.x + b.w and
     p.y + p.h >= b.y and
     p.y <= b.y + b.h
+      sound.play "dead"
       alert "You are dead."
       game.reset()
     

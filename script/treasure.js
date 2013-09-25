@@ -22,6 +22,7 @@ Treasure = (function(_super) {
   Treasure.prototype.update = function(x, y, level) {
     this.yOff += Math.PI / 24;
     if (this.collected) {
+      sound.play("particle");
       return level.removeBlock(x, y, this);
     }
   };

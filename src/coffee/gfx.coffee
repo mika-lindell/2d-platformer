@@ -11,7 +11,7 @@ gfx =
 	# Initialize canvas
 	init: ->
 		# ? is used got "soak up" nulls -> code keeps running if var was a null
-		canvas = document.querySelector "#game"
+		canvas = $("#game")[0]
 		# Get reference for drawing surface	
 		@ctx = canvas?.getContext? "2d"
 		# Here we return false in case of null

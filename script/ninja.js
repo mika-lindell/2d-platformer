@@ -19,7 +19,10 @@ Ninja = (function(_super) {
   Ninja.prototype.time = 0;
 
   Ninja.prototype.render = function(gfx) {
-    return gfx.drawSprite(0, 1, this.x, this.y);
+    var fx;
+    fx = this.dir === "LEFT" ? 2 : 0;
+    fx += utils.counter(2);
+    return gfx.drawSprite(fx, 1, this.x, this.y);
   };
 
   Ninja.prototype.cruise = function(px, py) {

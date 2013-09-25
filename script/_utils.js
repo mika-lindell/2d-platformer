@@ -15,5 +15,11 @@ utils = {
     }
     range = max - min;
     return Math.floor(Math.random() * range) + min;
+  },
+  counter: function(max, speed) {
+    if (speed == null) {
+      speed = 100;
+    }
+    return Math.floor(this.now() / speed % max);
   }
 };

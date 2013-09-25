@@ -29,6 +29,7 @@ this.game = {
     return this.player.y = y;
   },
   tick: function() {
+    var _this = this;
     if (!this.running) {
       return;
     }
@@ -44,7 +45,22 @@ this.game = {
     return this.player.update();
   },
   render: function() {
+    var backX, backY, leftEdge, levelWidth, offx, rightEdge;
+    gfx.ctx.save();
+    gfx.ctx.scale(1.3, 1.3);
+    levelWidth = this.level.w * gfx.tileW;
+    leftEdge = levelWidth / 2;
+    rightEdge = (levelWidth / 4.4) + leftEdge;
+    offx = this.player.x > leftEdge ? -this.player.x + leftEdge : 0;
+    if (this.player.x > rightEdge) {
+      offx = -(levelWidth / 4.4);
+    }
+    gfx.ctx.translate(offx, -this.player.y + (gfx.h / 4));
     this.level.render(gfx);
-    return this.player.render(gfx);
+    this.player.render(gfx);
+    backX = 1 - (this.player.x / gfx.w) * 100;
+    backY = 1 - (this.player.y / gfx.h) * 100;
+    gfx.ctx.canvas.style.backgroundPosition = "" + backX + "px " + backY + "px";
+    return gfx.ctx.restore();
   }
 };

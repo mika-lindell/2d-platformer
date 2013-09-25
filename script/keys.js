@@ -33,10 +33,10 @@ keys = {
   }
 };
 
-document.addEventListener("keydown", function(e) {
+$(document).keydown(function(e) {
   return keys.trigger(e.keyCode, true, e);
-}, false);
+});
 
-document.addEventListener("keyup", function(e) {
+$(document).keyup(function(e) {
   return keys.trigger(e.keyCode, false, e);
-}, false);
+});

@@ -7,7 +7,9 @@ class Treasure extends Block
   update: (x, y, level) ->
     @yOff +=  Math.PI / 24
     if @collected
+      sound.play "particle"
       level.removeBlock x, y, @
+     
   render: (gfx, x, y) ->
     ySine = Math.floor Math.sin(@yOff) * 4
     gfx.drawSprite 5, 1, x, y + ySine

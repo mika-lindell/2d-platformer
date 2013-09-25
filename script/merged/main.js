@@ -15,6 +15,12 @@ utils = {
     }
     range = max - min;
     return Math.floor(Math.random() * range) + min;
+  },
+  counter: function(max, speed) {
+    if (speed == null) {
+      speed = 100;
+    }
+    return Math.floor(this.now() / speed % max);
   }
 };
 var gfx;
@@ -24,7 +30,7 @@ gfx = {
   tileH: 24,
   init: function() {
     var canvas;
-    canvas = document.querySelector("#game");
+    canvas = $("#game")[0];
     this.ctx = canvas != null ? typeof canvas.getContext === "function" ? canvas.getContext("2d") : void 0 : void 0;
     if (!this.ctx) {
       return false;
@@ -93,13 +99,43 @@ keys = {
   }
 };
 
-document.addEventListener("keydown", function(e) {
+$(document).keydown(function(e) {
   return keys.trigger(e.keyCode, true, e);
-}, false);
+});
 
-document.addEventListener("keyup", function(e) {
+$(document).keyup(function(e) {
   return keys.trigger(e.keyCode, false, e);
-}, false);
+});
+var sound;
+
+sound = {
+  audio: {},
+  list: {
+    "dig": "dig.wav",
+    "fall": "falling.wav",
+    "particle": "particle.wav",
+    "dead": "dead.wav"
+  },
+  init: function() {
+    var name, url, _ref, _results;
+    _ref = this.list;
+    _results = [];
+    for (name in _ref) {
+      url = _ref[name];
+      _results.push(this.audio[name] = new Audio("resources/" + url));
+    }
+    return _results;
+  },
+  play: function(name) {
+    var _ref, _ref1;
+    if ((_ref = this.audio[name]) != null) {
+      _ref.currentTime = 0;
+    }
+    return (_ref1 = this.audio[name]) != null ? _ref1.play() : void 0;
+  }
+};
+
+sound.init();
 var Entity;
 
 Entity = (function() {
@@ -221,7 +257,10 @@ Ninja = (function(_super) {
   Ninja.prototype.time = 0;
 
   Ninja.prototype.render = function(gfx) {
-    return gfx.drawSprite(0, 1, this.x, this.y);
+    var fx;
+    fx = this.dir === "LEFT" ? 2 : 0;
+    fx += utils.counter(2);
+    return gfx.drawSprite(fx, 1, this.x, this.y);
   };
 
   Ninja.prototype.cruise = function(px, py) {
@@ -348,7 +387,23 @@ Player = (function(_super) {
   };
 
   Player.prototype.render = function(gfx) {
-    return gfx.drawSprite(0, 0, this.x, this.y);
+    var fx, fy, isLeft;
+    fy = fx = 0;
+    isLeft = this.dir === "LEFT";
+    if (this.falling) {
+      if (isLeft) {
+        fx = 1;
+      }
+      fy = 2;
+    } else {
+      if (isLeft) {
+        fx = 2;
+      }
+      if (keys.left || keys.right) {
+        fx += utils.counter(2);
+      }
+    }
+    return gfx.drawSprite(fx, fy, this.x, this.y);
   };
 
   Player.prototype.dig = function() {
@@ -356,7 +411,8 @@ Player = (function(_super) {
       return;
     }
     this.level.digAt(this.dir, this.x, this.y);
-    return this.lastDig = utils.now();
+    this.lastDig = utils.now();
+    return sound.play("dig");
   };
 
   return Player;
@@ -404,6 +460,7 @@ Treasure = (function(_super) {
   Treasure.prototype.update = function(x, y, level) {
     this.yOff += Math.PI / 24;
     if (this.collected) {
+      sound.play("particle");
       return level.removeBlock(x, y, this);
     }
   };
@@ -693,6 +750,7 @@ Level = (function() {
 
   Level.prototype.checkCollision = function(p, b) {
     if (p.x + p.w >= b.x && p.x <= b.x + b.w && p.y + p.h >= b.y && p.y <= b.y + b.h) {
+      sound.play("dead");
       alert("You are dead.");
       return game.reset();
     }
@@ -767,6 +825,7 @@ this.game = {
     return this.player.y = y;
   },
   tick: function() {
+    var _this = this;
     if (!this.running) {
       return;
     }
@@ -782,7 +841,22 @@ this.game = {
     return this.player.update();
   },
   render: function() {
+    var backX, backY, leftEdge, levelWidth, offx, rightEdge;
+    gfx.ctx.save();
+    gfx.ctx.scale(1.3, 1.3);
+    levelWidth = this.level.w * gfx.tileW;
+    leftEdge = levelWidth / 2;
+    rightEdge = (levelWidth / 4.4) + leftEdge;
+    offx = this.player.x > leftEdge ? -this.player.x + leftEdge : 0;
+    if (this.player.x > rightEdge) {
+      offx = -(levelWidth / 4.4);
+    }
+    gfx.ctx.translate(offx, -this.player.y + (gfx.h / 4));
     this.level.render(gfx);
-    return this.player.render(gfx);
+    this.player.render(gfx);
+    backX = 1 - (this.player.x / gfx.w) * 100;
+    backY = 1 - (this.player.y / gfx.h) * 100;
+    gfx.ctx.canvas.style.backgroundPosition = "" + backX + "px " + backY + "px";
+    return gfx.ctx.restore();
   }
 };
